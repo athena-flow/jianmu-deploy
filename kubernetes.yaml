@@ -114,7 +114,7 @@ spec:
           value: embedded_kube
         - name: JIANMU_WORKER_K8S_NAMESPACE
           value: jianmu
-        image: jianmudev/jianmu-ci-server:v3.0.0-alpha.4
+        image: jianmudev/jianmu-ci-server:v3.0.0-alpha.8
         name: ci-server
         resources: {}
         volumeMounts:
@@ -156,7 +156,7 @@ spec:
         app: web
     spec:
       containers:
-      - image: jianmudev/jianmu-ci-ui:v3.0.0-alpha.4
+      - image: jianmudev/jianmu-ci-ui:v3.0.0-alpha.8
         name: web
         ports:
         - containerPort: 80
