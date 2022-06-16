@@ -11,26 +11,36 @@ services:
       MYSQL_DATABASE: "jianmu"
       TZ: "Asia/Shanghai"
   ci-server:
-    image: jianmudev/jianmu-ci-server:v2.4.0
+    image: jianmudev/jianmu-ci-server:v2.5.0
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:mysql://jianmu-mysql:3306/jianmu?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 123456
-      EMBEDDED_DOCKER-WORKER_DOCKER-HOST: unix:///var/run/docker.sock
-      EMBEDDED_DOCKER-WORKER_SOCK-FILE: /var/run/docker.sock
+      JIANMU_WORKER_SECRET: worker-secret
       JIANMU_API_ADMINPASSWD: 123456
 #      REGISTRY_AK:
 #      REGISTRY_SK:
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - /mnt/jianmu/ci:/ci
     depends_on:
       - jianmu-mysql
     entrypoint: ["/wait-for-it.sh", "jianmu-mysql:3306", "-t", "0", "--", "java", "-Duser.timezone=Asia/Shanghai", "-cp", "/app/resources:/app/classes:/app/libs/*", "dev.jianmu.api.SpringbootApp"]
+  worker:
+    image: jianmudev/jianmu-worker-docker:1.0.0
+    restart: always
+    environment:
+      JIANMU_SRV_ADDRESS: http://ci-server:8081
+      JIANMU_SRV_SECRET: worker-secret
+      JIANMU_WORKER_ID: worker1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - jianmu-mysql
+      - ci-server
   web:
-    image: jianmudev/jianmu-ci-ui:v2.4.0
+    image: jianmudev/jianmu-ci-ui:v2.5.0
     ports:
       - "80:80"
       - "443:443"
