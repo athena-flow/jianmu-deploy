@@ -34,6 +34,8 @@ services:
       JIANMU_SRV_ADDRESS: http://ci-server:8081
       JIANMU_SRV_SECRET: worker-secret
       JIANMU_WORKER_ID: worker1
+      # 可同时并发的容器数量，默认为2
+      JIANMU_WORKER_CAPACITY: 5
     depends_on:
       - jianmu-mysql
       - ci-server
