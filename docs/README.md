@@ -11,5 +11,9 @@ sudo docker-compose down
 
 sudo docker-compose logs -f
 
+http://49.232.6.131:8102/
+admin
+123456
+
 kubectl apply -f kubernetes.yaml
 ```
