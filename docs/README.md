@@ -15,5 +15,7 @@ http://49.232.6.131:8102/
 admin
 123456
 
+https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=
+
 kubectl apply -f kubernetes.yaml
 ```
