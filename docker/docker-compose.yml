@@ -4,10 +4,10 @@ services:
     image: mysql:8
     command: --init-connect='SET NAMES utf8' --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=1200 --max-user-connections=1000
     ports:
-      - "3306:3306"
+      - "3317:3306"
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: "jianmu"
       TZ: "Asia/Shanghai"
   ci-server:
@@ -17,7 +17,7 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:mysql://jianmu-mysql:3306/jianmu?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_DATASOURCE_PASSWORD: root
       JIANMU_WORKER_SECRET: worker-secret
       JIANMU_API_ADMINPASSWD: 123456
 #      REGISTRY_AK:
@@ -44,8 +44,8 @@ services:
   web:
     image: jianmudev/jianmu-ci-ui:v2.5.0
     ports:
-      - "80:80"
-      - "443:443"
+      - "8102:80"
+      - "8103:443"
     restart: always
     depends_on:
       - jianmu-mysql
