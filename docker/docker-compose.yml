@@ -1,0 +1,59 @@
+version: '3'
+services:
+  jianmu-mysql:
+    image: mysql:8
+    command: --init-connect='SET NAMES utf8' --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=1200 --max-user-connections=1000
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: "jianmu"
+      TZ: "Asia/Shanghai"
+  ci-server:
+    image: jianmudev/jianmu-ci-server:v2.5.0
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:mysql://jianmu-mysql:3306/jianmu?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      JIANMU_WORKER_SECRET: worker-secret
+      JIANMU_API_ADMINPASSWD: 123456
+#      REGISTRY_AK:
+#      REGISTRY_SK:
+    volumes:
+      - /mnt/jianmu/ci:/ci
+    depends_on:
+      - jianmu-mysql
+    entrypoint: ["/wait-for-it.sh", "jianmu-mysql:3306", "-t", "0", "--", "java", "-Duser.timezone=Asia/Shanghai", "-cp", "/app/resources:/app/classes:/app/libs/*", "dev.jianmu.api.SpringbootApp"]
+  worker:
+    image: jianmudev/jianmu-worker-docker:v1.0.0
+    restart: always
+    environment:
+      JIANMU_SRV_ADDRESS: http://ci-server:8081
+      JIANMU_SRV_SECRET: worker-secret
+      JIANMU_WORKER_ID: worker1
+      # 可同时并发的容器数量，默认为2
+      JIANMU_WORKER_CAPACITY: 5
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - jianmu-mysql
+      - ci-server
+  web:
+    image: jianmudev/jianmu-ci-ui:v2.5.0
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    depends_on:
+      - jianmu-mysql
+      - ci-server
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 10.1.0.0/16
+
